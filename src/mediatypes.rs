@@ -1,7 +1,7 @@
 //! Media-types for API objects.
 
 use crate::errors::Result;
-use strum::EnumProperty;
+use strum::{Display, EnumProperty, EnumString};
 
 // For schema1 types, see https://docs.docker.com/registry/spec/manifest-v2-1/
 // For schema2 types, see https://docs.docker.com/registry/spec/manifest-v2-2/

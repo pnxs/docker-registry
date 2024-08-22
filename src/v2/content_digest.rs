@@ -3,7 +3,7 @@ use sha2::{self, Digest};
 use std::str;
 
 /// DigestAlgorithm declares the supported algorithms
-#[derive(Display, Clone, Debug)]
+#[derive(strum::Display, Clone, Debug)]
 pub enum DigestAlgorithm {
     Sha256(sha2::Sha256),
 }

@@ -6,8 +6,9 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! # extern crate dockreg;
-//! # extern crate tokio;
+//! # use dockreg;
+//! # use tokio;
+//!
 //! # #[tokio::main]
 //! # async fn main() {
 //! # async fn run() -> dockreg::errors::Result<()> {
@@ -33,12 +34,8 @@
 
 #![deny(missing_debug_implementations)]
 
-#[macro_use]
-extern crate serde;
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate strum_macros;
+use log::trace;
+use serde::{Deserialize, Serialize};
 
 pub mod errors;
 pub mod mediatypes;
@@ -46,6 +43,7 @@ pub mod reference;
 pub mod render;
 pub mod v2;
 
+use base64::prelude::*;
 use errors::{Error, Result};
 use std::collections::HashMap;
 use std::io::Read;
@@ -68,7 +66,7 @@ pub fn get_credentials<T: Read>(
         other => other,
     };
     let auth = match map.auths.get(real_index) {
-        Some(x) => base64::decode(x.auth.as_str())?,
+        Some(x) => BASE64_STANDARD.decode(x.auth.as_str())?,
         None => return Err(Error::AuthInfoMissing(real_index.to_string())),
     };
     let s = String::from_utf8(auth)?;

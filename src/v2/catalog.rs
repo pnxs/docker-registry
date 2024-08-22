@@ -3,7 +3,9 @@ use crate::v2;
 use async_stream::try_stream;
 use futures::stream::Stream;
 use futures::{self};
+use log::trace;
 use reqwest::{Method, RequestBuilder, StatusCode};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 struct Catalog {

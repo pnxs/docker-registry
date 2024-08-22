@@ -1,6 +1,7 @@
 use crate::errors::{Error, Result};
 use crate::mediatypes;
 use crate::v2::*;
+use log::{debug, trace};
 use reqwest::{self, header, StatusCode, Url};
 use std::iter::FromIterator;
 use std::str::FromStr;
@@ -222,7 +223,7 @@ fn evaluate_media_type(
 
     match (header_content_type, is_pulp_based) {
         (Some(header_value), false) => {
-            mediatypes::MediaTypes::from_str(header_value).map_err(Into::into)
+            mediatypes::MediaTypes::from_str(header_value).map_err(strum::ParseError::into)
         }
         (None, false) => Err(Error::MediaTypeSniff),
         (Some(header_value), true) => {
@@ -233,11 +234,11 @@ fn evaluate_media_type(
                     mediatypes::MediaTypes::from_str(
                         "application/vnd.docker.distribution.manifest.v1+prettyjws",
                     )
-                    .map_err(Into::into)
+                    .map_err(strum::ParseError::into)
                 }
                 _ => {
                     debug!("Received content-type '{}' from pulp-based registry. Feeling lucky and trying to parse it...", header_value);
-                    mediatypes::MediaTypes::from_str(header_value).map_err(Into::into)
+                    mediatypes::MediaTypes::from_str(header_value).map_err(strum::ParseError::into)
                 }
             }
         }
@@ -246,7 +247,7 @@ fn evaluate_media_type(
             mediatypes::MediaTypes::from_str(
                 "application/vnd.docker.distribution.manifest.v1+prettyjws",
             )
-            .map_err(Into::into)
+            .map_err(strum::ParseError::into)
         }
     }
 }

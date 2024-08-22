@@ -7,8 +7,9 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! # extern crate dockreg;
-//! # extern crate tokio;
+//! # use dockreg;
+//! # use tokio;
+//!
 //! # #[tokio::main]
 //! # async fn main() {
 //! # async fn run() -> dockreg::errors::Result<()> {
@@ -30,7 +31,9 @@
 use crate::errors::*;
 use crate::mediatypes::MediaTypes;
 use futures::prelude::*;
+use log::trace;
 use reqwest::{Method, StatusCode, Url};
+use serde::{Deserialize, Serialize};
 
 mod config;
 pub use self::config::Config;

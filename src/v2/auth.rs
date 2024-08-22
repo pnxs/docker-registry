@@ -1,6 +1,8 @@
 use crate::errors::{Error, Result};
 use crate::v2::*;
+use log::{trace, warn};
 use reqwest::{header::HeaderValue, RequestBuilder, StatusCode, Url};
+use serde::{Deserialize, Serialize};
 
 /// Represents all supported authentication schemes and is stored by `Client`.
 #[derive(Debug, Clone)]

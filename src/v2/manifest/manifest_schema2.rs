@@ -1,5 +1,7 @@
 use crate::errors::{Error, Result};
+use log::trace;
 use reqwest::Method;
+use serde::{Deserialize, Serialize};
 
 /// Manifest version 2 schema 2.
 ///

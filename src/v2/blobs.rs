@@ -6,6 +6,7 @@ use std::pin::Pin;
 use bytes::Bytes;
 use futures::stream::Stream;
 use futures::task::{Context, Poll};
+use log::{error, trace};
 use pin_project::pin_project;
 use reqwest::{self, Method, StatusCode};
 

@@ -1,6 +1,7 @@
 use crate::errors::Result;
 use crate::v2::*;
 use async_stream::try_stream;
+use log::debug;
 use reqwest::{self, header, Url};
 use std::fmt::Debug;
 

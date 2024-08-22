@@ -1,4 +1,5 @@
 use crate::{mediatypes::MediaTypes, v2::*};
+use log::trace;
 use reqwest::Certificate;
 
 /// Configuration for a `Client`.
