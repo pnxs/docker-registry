@@ -4,8 +4,8 @@ extern crate tokio;
 
 use self::{mockito::mock, tokio::runtime::Runtime};
 
-static API_VERSION_K: &'static str = "Docker-Distribution-API-Version";
-static API_VERSION_V: &'static str = "registry/2.0";
+static API_VERSION_K: &str = "Docker-Distribution-API-Version";
+static API_VERSION_V: &str = "registry/2.0";
 
 #[test]
 fn test_version_check_status_ok() {
@@ -26,7 +26,7 @@ fn test_version_check_status_ok() {
 
   let is_v2 = dclient.is_v2_supported();
   let ok = runtime.block_on(is_v2).unwrap();
-  assert_eq!(ok, true);
+  assert!(ok);
 
   let ensure_v2 = dclient.ensure_v2_registry();
   let _dclient = runtime.block_on(ensure_v2).unwrap();
@@ -54,7 +54,7 @@ fn test_version_check_status_unauth() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 
   mockito::reset();
 }
@@ -79,7 +79,7 @@ fn test_version_check_status_notfound() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, false);
+  assert!(!res);
 
   mockito::reset();
 }
@@ -104,7 +104,7 @@ fn test_version_check_status_forbidden() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, false);
+  assert!(!res);
 
   mockito::reset();
 }
@@ -126,7 +126,7 @@ fn test_version_check_noheader() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, false);
+  assert!(!res);
 
   mockito::reset();
 }
@@ -151,7 +151,7 @@ fn test_version_check_trailing_slash() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, false);
+  assert!(!res);
 
   mockito::reset();
 }

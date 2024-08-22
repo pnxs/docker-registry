@@ -1,9 +1,6 @@
-extern crate spectral;
-
 use std::str::FromStr;
 
 use dockreg::reference::Reference;
-use spectral::prelude::*;
 
 #[test]
 fn valid_references() {
@@ -75,27 +72,19 @@ fn valid_references() {
       expected_repo: "busybox",
     },
   ] {
-    let r = Reference::from_str(t.input);
-    asserting(t.input).that(&r).is_ok();
-    let r = r.unwrap();
-
-    asserting(t.input)
-      .that(&r.repository().as_str())
-      .is_equal_to(t.expected_repo);
-
-    asserting(t.input)
-      .that(&r.registry().as_str())
-      .is_equal_to(t.expected_registry);
+    let r = Reference::from_str(t.input).unwrap();
+    assert_eq!(r.repository().as_str(), t.expected_repo);
+    assert_eq!(r.registry().as_str(), t.expected_registry);
   }
 }
 
 #[test]
 fn invalid_references() {
-  let tcases = vec!["".into(), "L".repeat(128), ":justatag".into()];
+  let tcases = ["".into(), "L".repeat(128), ":justatag".into()];
 
   for t in tcases.iter() {
     let r = Reference::from_str(t);
-    asserting(t).that(&r).is_err();
+    assert!(&r.is_err());
   }
 }
 

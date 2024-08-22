@@ -36,7 +36,7 @@ fn test_blobs_has_layer() {
   let futcheck = dclient.has_blob(name, digest);
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 
   mockito::reset();
 }
@@ -62,7 +62,7 @@ fn test_blobs_hasnot_layer() {
   let futcheck = dclient.has_blob(name, digest);
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, false);
+  assert!(!res);
 
   mockito::reset();
 }
@@ -87,7 +87,7 @@ fn get_blobs_succeeds_with_consistent_layer() -> Fallible<()> {
     .build()
     .unwrap();
 
-  let futcheck = dclient.get_blob(&name, &digest);
+  let futcheck = dclient.get_blob(name, &digest);
 
   let result = runtime.block_on(futcheck)?;
   assert_eq!(blob, result.as_slice());
@@ -117,7 +117,7 @@ fn get_blobs_fails_with_inconsistent_layer() -> Fallible<()> {
     .build()
     .unwrap();
 
-  let futcheck = dclient.get_blob(&name, &digest);
+  let futcheck = dclient.get_blob(name, &digest);
 
   if runtime.block_on(futcheck).is_ok() {
     return Err("expected get_blob to fail with an inconsistent blob".into());
@@ -147,7 +147,7 @@ fn get_blobs_stream() -> Fallible<()> {
     .build()
     .unwrap();
 
-  let futcheck = dclient.get_blob_response(&name, &digest);
+  let futcheck = dclient.get_blob_response(name, &digest);
 
   let blob_resp = runtime.block_on(futcheck)?;
   assert_eq!(blob_resp.size(), Some(5));

@@ -65,7 +65,7 @@ async fn main() -> Result<(), boxed::Box<dyn error::Error>> {
     }
   };
 
-  let res = run(&registry, &image, &version, user, password, &path).await;
+  let res = run(&registry, &image, &version, user, password, path).await;
 
   if let Err(e) = res {
     println!("[{}] {}", registry, e);
@@ -98,14 +98,14 @@ async fn run(
   let login_scope = format!("repository:{}:pull", image);
 
   let dclient = client.authenticate(&[&login_scope]).await?;
-  let manifest = dclient.get_manifest(&image, &version).await?;
+  let manifest = dclient.get_manifest(image, version).await?;
   let layers_digests = manifest.layers_digests(None)?;
 
   println!("{} -> got {} layer(s)", &image, layers_digests.len(),);
 
   let blob_futures = layers_digests
     .iter()
-    .map(|layer_digest| dclient.get_blob(&image, &layer_digest))
+    .map(|layer_digest| dclient.get_blob(image, layer_digest))
     .collect::<Vec<_>>();
 
   let blobs = try_join_all(blob_futures).await?;
@@ -113,7 +113,7 @@ async fn run(
   println!("Downloaded {} layers", blobs.len());
 
   // TODO: use async io
-  std::fs::create_dir(&path).unwrap();
+  std::fs::create_dir(path).unwrap();
   let can_path = path.canonicalize().unwrap();
 
   println!("Unpacking layers to {:?}", &can_path);

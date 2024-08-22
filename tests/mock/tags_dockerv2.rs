@@ -30,7 +30,7 @@ fn test_dockerv2_tags_simple() {
   let futcheck = dclient.get_tags(name, None);
 
   let res = runtime.block_on(futcheck.map(Result::unwrap).collect::<Vec<_>>());
-  assert_eq!(res.get(0).unwrap(), &String::from("t1"));
+  assert_eq!(res.first().unwrap(), &String::from("t1"));
   assert_eq!(res.get(1).unwrap(), &String::from("t2"));
 
   mockito::reset();
@@ -107,7 +107,7 @@ fn test_dockerv2_tags_404() {
   let futcheck = dclient.get_tags(name, None);
 
   let res = runtime.block_on(futcheck.collect::<Vec<_>>());
-  assert!(res.get(0).unwrap().is_err());
+  assert!(res.first().unwrap().is_err());
 
   mockito::reset();
 }

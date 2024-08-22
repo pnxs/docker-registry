@@ -2,7 +2,7 @@ use dockreg::mediatypes::MediaTypes;
 use futures::stream::StreamExt;
 use tokio::runtime::Runtime;
 
-static REGISTRY: &'static str = "quay.io";
+static REGISTRY: &str = "quay.io";
 
 fn get_env() -> Option<(String, String)> {
   let user = ::std::env::var("DKREG_QUAY_USER");
@@ -68,7 +68,7 @@ fn test_quayio_base() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 }
 
 #[test]
@@ -86,18 +86,18 @@ fn test_quayio_insecure() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 }
 
 #[cfg(feature = "test-net-private")]
 #[test]
 fn test_quayio_auth_login() {
   let login_scope = "";
-  let (runtime, dclient) = common_init(Some(&login_scope)).unwrap();
+  let (runtime, dclient) = common_init(Some(login_scope)).unwrap();
 
   let futlogin = dclient.is_auth();
   let res = runtime.block_on(futlogin).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 }
 
 #[test]
@@ -116,7 +116,7 @@ fn test_quayio_get_tags_simple() {
   let tags = runtime.block_on(fut_tags.collect::<Vec<_>>());
   let has_version = tags.iter().map(|t| t.as_ref().unwrap()).any(|t| t == "latest");
 
-  assert_eq!(has_version, true);
+  assert!(has_version);
 }
 
 #[test]
@@ -135,7 +135,7 @@ fn test_quayio_get_tags_limit() {
   let tags = runtime.block_on(fut_tags.collect::<Vec<_>>());
   let has_version = tags.iter().map(|t| t.as_ref().unwrap()).any(|t| t == "latest");
 
-  assert_eq!(has_version, true);
+  assert!(has_version);
 }
 
 #[test]
@@ -154,7 +154,7 @@ fn test_quayio_get_tags_pagination() {
   let tags = runtime.block_on(fut_tags.collect::<Vec<_>>());
   let has_version = tags.iter().map(|t| t.as_ref().unwrap()).any(|t| t == "v0.10.0");
 
-  assert_eq!(has_version, true);
+  assert!(has_version);
 }
 
 #[cfg(feature = "test-net-private")]
@@ -171,7 +171,7 @@ fn test_quayio_auth_tags() {
     .collect::<Vec<_>>();
 
   let has_version = tags.iter().any(|t| t == "0.0.1");
-  assert_eq!(has_version, true);
+  assert!(has_version);
 }
 
 #[test]
@@ -278,7 +278,7 @@ fn test_quayio_auth_layer_blob() {
       })
       .unwrap();
 
-    dclient.get_blob(&image, &digest).await
+    dclient.get_blob(image, &digest).await
   };
 
   let layer0_blob = runtime.block_on(fut_layer0_blob).unwrap();

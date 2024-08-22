@@ -4,8 +4,8 @@ extern crate tokio;
 
 use self::{mockito::mock, tokio::runtime::Runtime};
 
-static API_VERSION_K: &'static str = "Docker-Distribution-API-Version";
-static API_VERSION_V: &'static str = "registry/2.0";
+static API_VERSION_K: &str = "Docker-Distribution-API-Version";
+static API_VERSION_V: &str = "registry/2.0";
 
 #[test]
 #[ignore]
@@ -56,7 +56,7 @@ fn test_base_useragent() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 
   mockito::reset();
 }
@@ -85,7 +85,7 @@ fn test_base_custom_useragent() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 
   mockito::reset();
 }
@@ -168,7 +168,6 @@ mod test_custom_root_certificate {
               message
             );
           }
-          return;
         }
       }
     } else {

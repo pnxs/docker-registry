@@ -4,7 +4,7 @@ extern crate tokio;
 
 use self::{futures::stream::StreamExt, tokio::runtime::Runtime};
 
-static REGISTRY: &'static str = "gcr.io";
+static REGISTRY: &str = "gcr.io";
 
 fn get_env() -> Option<(String, String)> {
   let user = ::std::env::var("DKREG_GCR_USER");
@@ -41,7 +41,7 @@ fn test_gcrio_base() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn test_gcrio_insecure() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn test_gcrio_get_tags() {
   let tags = runtime.block_on(fut_tags.collect::<Vec<_>>());
   let has_version = tags.iter().map(|t| t.as_ref().unwrap()).any(|t| t == "0.2");
 
-  assert_eq!(has_version, true);
+  assert!(has_version);
 }
 
 #[test]

@@ -9,7 +9,7 @@ use self::{futures::StreamExt, mockito::mock, tokio::runtime::Runtime};
 fn test_catalog_simple() {
   let repos = r#"{"repositories": ["r1/i1", "r2"]}"#;
 
-  let ep = format!("/v2/_catalog");
+  let ep = "/v2/_catalog".to_string();
   let addr = mockito::server_address().to_string();
   let _m = mock("GET", ep.as_str()).with_status(200).with_body(repos).create();
 

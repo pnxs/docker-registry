@@ -3,7 +3,7 @@ extern crate tokio;
 
 use self::tokio::runtime::Runtime;
 
-static REGISTRY: &'static str = "registry-1.docker.io";
+static REGISTRY: &str = "registry-1.docker.io";
 
 fn get_env() -> Option<(String, String)> {
   let user = ::std::env::var("DKREG_DOCKER_USER");
@@ -40,7 +40,7 @@ fn test_dockerio_base() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn test_dockerio_insecure() {
   let futcheck = dclient.is_v2_supported();
 
   let res = runtime.block_on(futcheck).unwrap();
-  assert_eq!(res, true);
+  assert!(res);
 }
 
 #[test]
@@ -80,5 +80,5 @@ fn test_dockerio_anonymous_auth() {
   let futcheck = dclient.get_manifest(image, version);
 
   let res = runtime.block_on(futcheck);
-  assert_eq!(res.is_ok(), true);
+  assert!(res.is_ok());
 }

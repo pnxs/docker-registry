@@ -330,7 +330,7 @@ mod tests {
   #[test_case("gcr.io" => "application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.v1+prettyjws,application/vnd.docker.distribution.manifest.list.v2+json"; "gcr.io")]
   #[test_case("foobar.gcr.io" => "application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.v1+prettyjws,application/vnd.docker.distribution.manifest.list.v2+json"; "Custom gcr.io registry")]
   fn gcr_io_accept_headers(registry: &str) -> String {
-    let client_builder = Client::configure().registry(&registry);
+    let client_builder = Client::configure().registry(registry);
     let client = client_builder.build().unwrap();
     let header_map = build_accept_headers(&client.accepted_types);
     header_map.get(header::ACCEPT).unwrap().to_str().unwrap().to_string()
@@ -348,7 +348,7 @@ mod tests {
   fn custom_accept_headers(accept_headers: Option<Vec<(MediaTypes, Option<f64>)>>) -> String {
     let registry = "https://example.com";
 
-    let client_builder = Client::configure().registry(&registry).accepted_types(accept_headers);
+    let client_builder = Client::configure().registry(registry).accepted_types(accept_headers);
     let client = client_builder.build().unwrap();
     let header_map = build_accept_headers(&client.accepted_types);
     header_map.get(header::ACCEPT).unwrap().to_str().unwrap().to_string()
