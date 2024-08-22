@@ -29,6 +29,7 @@
 // https://github.com/docker/distribution/blob/v2.6.1/reference/reference.go
 
 use std::{collections::VecDeque, fmt, str, str::FromStr};
+use regex_lite::Regex;
 
 pub static DEFAULT_REGISTRY: &str = "registry-1.docker.io";
 static DEFAULT_TAG: &str = "latest";
@@ -188,7 +189,7 @@ fn parse_url(input: &str) -> Result<Reference, ReferenceParseError> {
   // default registry if it's not.
   let first = components.pop_front().ok_or(ReferenceParseError::MissingImageName)?;
 
-  let registry = if regex::Regex::new(
+  let registry = if Regex::new(
     r"(?x)
         ^
         # hostname
@@ -231,7 +232,7 @@ fn parse_url(input: &str) -> Result<Reference, ReferenceParseError> {
   // Check if all path components conform to the regex at
   // https://docs.docker.com/registry/spec/api/#overview.
   const REGEX: &str = "^[a-z0-9]+(?:[._-][a-z0-9]+)*$";
-  let path_re = regex::Regex::new(REGEX).expect("hardcoded regex is invalid");
+  let path_re = Regex::new(REGEX).expect("hardcoded regex is invalid");
   components.iter().try_for_each(|component| {
     if !path_re.is_match(component) {
       return Err(ReferenceParseError::RegexViolation {

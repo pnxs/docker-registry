@@ -1,6 +1,7 @@
 use log::{trace, warn};
 use reqwest::{header::HeaderValue, RequestBuilder, StatusCode, Url};
 use serde::{Deserialize, Serialize};
+use regex_lite::Regex;
 
 use crate::{
   errors::{Error, Result},
@@ -128,7 +129,7 @@ impl WwwAuthenticateHeaderContent {
 
     // This regex will result in multiple captures which will contain one key-value pair each.
     // The first capture will be the only one with the "method" group set.
-    let re = regex::Regex::new(REGEX).expect("this static regex is valid");
+    let re = Regex::new(REGEX).expect("this static regex is valid");
     let captures = re.captures_iter(&header).collect::<Vec<_>>();
 
     let method = captures

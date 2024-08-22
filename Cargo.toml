@@ -28,7 +28,7 @@ futures = "0.3"
 libflate = "2.1"
 log = "0.4"
 mime = "0.3"
-regex = "1.10"
+regex-lite = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_ignored = "0.1"
