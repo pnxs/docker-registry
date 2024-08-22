@@ -1,8 +1,5 @@
-extern crate dockreg;
-extern crate mockito;
-extern crate tokio;
-
-use self::{mockito::mock, tokio::runtime::Runtime};
+use mockito::mock;
+use tokio::runtime::Runtime;
 
 static API_VERSION_K: &str = "Docker-Distribution-API-Version";
 static API_VERSION_V: &str = "registry/2.0";

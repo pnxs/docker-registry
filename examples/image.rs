@@ -1,14 +1,7 @@
-extern crate dirs;
-extern crate futures;
-extern crate serde_json;
-extern crate tokio;
-
 use std::{boxed, env, error, fs, io, path::Path, result::Result};
 
 use dockreg::render;
 use futures::future::try_join_all;
-
-mod common;
 
 #[tokio::main]
 async fn main() -> Result<(), boxed::Box<dyn error::Error>> {

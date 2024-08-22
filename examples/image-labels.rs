@@ -1,13 +1,6 @@
-extern crate dirs;
-extern crate futures;
-extern crate serde_json;
-extern crate tokio;
-
 use std::{env, fs, io, result::Result, str::FromStr};
 
 use dockreg::{reference, v2::manifest::Manifest};
-
-mod common;
 
 #[tokio::main]
 async fn main() {

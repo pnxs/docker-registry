@@ -1,7 +1,7 @@
 use log::{trace, warn};
+use regex_lite::Regex;
 use reqwest::{header::HeaderValue, RequestBuilder, StatusCode, Url};
 use serde::{Deserialize, Serialize};
-use regex_lite::Regex;
 
 use crate::{
   errors::{Error, Result},

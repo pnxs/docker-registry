@@ -5,7 +5,6 @@
 //! ## Example
 //!
 //! ```rust
-//! # extern crate dockreg;
 //! # fn main() {
 //! # fn run() -> dockreg::errors::Result<()> {
 //! #
@@ -29,6 +28,7 @@
 // https://github.com/docker/distribution/blob/v2.6.1/reference/reference.go
 
 use std::{collections::VecDeque, fmt, str, str::FromStr};
+
 use regex_lite::Regex;
 
 pub static DEFAULT_REGISTRY: &str = "registry-1.docker.io";

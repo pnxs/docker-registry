@@ -1,5 +1,3 @@
-extern crate tokio;
-
 use std::{boxed, error};
 
 #[tokio::main]

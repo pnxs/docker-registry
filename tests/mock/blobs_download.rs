@@ -1,12 +1,7 @@
-extern crate dockreg;
-extern crate mockito;
-extern crate sha2;
-extern crate tokio;
-
 use futures::{stream::StreamExt, FutureExt};
-
-use self::{mockito::mock, tokio::runtime::Runtime};
-use crate::mock::blobs_download::sha2::Digest;
+use mockito::mock;
+use sha2::Digest;
+use tokio::runtime::Runtime;
 
 type Fallible<T> = Result<T, Box<dyn std::error::Error>>;
 

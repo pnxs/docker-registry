@@ -1,10 +1,3 @@
-extern crate dirs;
-extern crate futures;
-extern crate serde_json;
-extern crate tokio;
-
-mod common;
-
 use std::{boxed, env, error, fs, io, str::FromStr};
 
 use dockreg::reference;

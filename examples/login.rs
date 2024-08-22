@@ -1,8 +1,3 @@
-extern crate futures;
-extern crate tokio;
-
-mod common;
-
 use std::{boxed, error, result::Result};
 
 #[tokio::main]

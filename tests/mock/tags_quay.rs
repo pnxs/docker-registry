@@ -1,9 +1,6 @@
-extern crate dockreg;
-extern crate futures;
-extern crate mockito;
-extern crate tokio;
-
-use self::{futures::StreamExt, mockito::mock, tokio::runtime::Runtime};
+use futures::StreamExt;
+use mockito::mock;
+use tokio::runtime::Runtime;
 
 #[test]
 fn test_quay_tags_simple() {

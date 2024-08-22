@@ -1,8 +1,5 @@
-extern crate dockreg;
-extern crate futures;
-extern crate tokio;
-
-use self::{futures::stream::StreamExt, tokio::runtime::Runtime};
+use futures::stream::StreamExt;
+use tokio::runtime::Runtime;
 
 static REGISTRY: &str = "gcr.io";
 

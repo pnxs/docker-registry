@@ -1,7 +1,4 @@
-extern crate dockreg;
-extern crate tokio;
-
-use self::tokio::runtime::Runtime;
+use tokio::runtime::Runtime;
 
 static REGISTRY: &str = "registry-1.docker.io";
 
