@@ -1,27 +1,25 @@
 use futures::{stream::StreamExt, FutureExt};
 use sha2::Digest;
-use tokio::runtime::Runtime;
 
 type Fallible<T> = Result<T, Box<dyn std::error::Error>>;
 
-#[test]
-fn test_blobs_has_layer() {
+#[tokio::test]
+async fn test_blobs_has_layer() {
   let name = "my-repo/my-image";
   let digest = "fakedigest";
   let binary_digest = "binarydigest";
   let ep = format!("/v2/{name}/blobs/{digest}");
 
-  let mut server = mockito::Server::new();
-  let addr = server.url();
+  let mut server = mockito::Server::new_async().await;
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("HEAD", ep.as_str())
     .with_status(200)
     .with_header("Content-Length", "0")
     .with_header("Docker-Content-Digest", binary_digest)
     .create();
 
-  let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
@@ -30,24 +28,23 @@ fn test_blobs_has_layer() {
     .build()
     .unwrap();
 
-  let futcheck = dclient.has_blob(name, digest);
+  let res = dclient.has_blob(name, digest).await.unwrap();
 
-  let res = runtime.block_on(futcheck).unwrap();
+  mock.assert_async().await;
   assert!(res);
 }
 
-#[test]
-fn test_blobs_hasnot_layer() {
+#[tokio::test]
+async fn test_blobs_hasnot_layer() {
   let name = "my-repo/my-image";
   let digest = "fakedigest";
   let ep = format!("/v2/{name}/blobs/{digest}");
 
-  let mut server = mockito::Server::new();
-  let addr = server.url();
+  let mut server = mockito::Server::new_async().await;
+  let addr = server.host_with_port();
 
-  let _m = server.mock("HEAD", ep.as_str()).with_status(404).create();
+  let mock = server.mock("HEAD", ep.as_str()).with_status(404).create();
 
-  let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
@@ -56,29 +53,28 @@ fn test_blobs_hasnot_layer() {
     .build()
     .unwrap();
 
-  let futcheck = dclient.has_blob(name, digest);
+  let res = dclient.has_blob(name, digest).await.unwrap();
 
-  let res = runtime.block_on(futcheck).unwrap();
+  mock.assert_async().await;
   assert!(!res);
 }
 
-#[test]
-fn get_blobs_succeeds_with_consistent_layer() -> Fallible<()> {
+#[tokio::test]
+async fn get_blobs_succeeds_with_consistent_layer() -> Fallible<()> {
   let name = "my-repo/my-image";
   let blob = b"hello";
   let digest = format!("sha256:{:x}", sha2::Sha256::digest(blob));
   let ep = format!("/v2/{name}/blobs/{digest}");
 
-  let mut server = mockito::Server::new();
-  let addr = server.url();
+  let mut server = mockito::Server::new_async().await;
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", ep.as_str())
     .with_status(200)
     .with_body(blob)
     .create();
 
-  let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
@@ -87,32 +83,31 @@ fn get_blobs_succeeds_with_consistent_layer() -> Fallible<()> {
     .build()
     .unwrap();
 
-  let futcheck = dclient.get_blob(name, &digest);
+  let res = dclient.get_blob(name, &digest).await.unwrap();
 
-  let result = runtime.block_on(futcheck)?;
-  assert_eq!(blob, result.as_slice());
+  mock.assert_async().await;
+  assert_eq!(blob, res.as_slice());
 
   Ok(())
 }
 
-#[test]
-fn get_blobs_fails_with_inconsistent_layer() -> Fallible<()> {
+#[tokio::test]
+async fn get_blobs_fails_with_inconsistent_layer() -> Fallible<()> {
   let name = "my-repo/my-image";
   let blob = b"hello";
   let blob2 = b"hello2";
   let digest = format!("sha256:{:x}", sha2::Sha256::digest(blob));
   let ep = format!("/v2/{name}/blobs/{digest}");
 
-  let mut server = mockito::Server::new();
-  let addr = server.url();
+  let mut server = mockito::Server::new_async().await;
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", ep.as_str())
     .with_status(200)
     .with_body(blob2)
     .create();
 
-  let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
@@ -121,32 +116,32 @@ fn get_blobs_fails_with_inconsistent_layer() -> Fallible<()> {
     .build()
     .unwrap();
 
-  let futcheck = dclient.get_blob(name, &digest);
+  match dclient.get_blob(name, &digest).await {
+    Ok(_) => panic!("Expected error"),
+    Err(e) => assert_eq!(e.to_string(), "content digest error"),
+  }
 
-  if runtime.block_on(futcheck).is_ok() {
-    return Err("expected get_blob to fail with an inconsistent blob".into());
-  };
+  mock.assert_async().await;
 
   Ok(())
 }
 
-#[test]
-fn get_blobs_stream() -> Fallible<()> {
+#[tokio::test]
+async fn get_blobs_stream() -> Fallible<()> {
   let name = "my-repo/my-image";
   let blob = b"hello";
   let digest = format!("sha256:{:x}", sha2::Sha256::digest(blob));
   let ep = format!("/v2/{name}/blobs/{digest}");
 
-  let mut server = mockito::Server::new();
-  let addr = server.url();
+  let mut server = mockito::Server::new_async().await;
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", ep.as_str())
     .with_status(200)
     .with_body(blob)
     .create();
 
-  let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
@@ -155,11 +150,11 @@ fn get_blobs_stream() -> Fallible<()> {
     .build()
     .unwrap();
 
-  let futcheck = dclient.get_blob_response(name, &digest);
+  let res = dclient.get_blob_response(name, &digest).await.unwrap();
 
-  let blob_resp = runtime.block_on(futcheck)?;
-  assert_eq!(blob_resp.size(), Some(5));
-  let stream_output = blob_resp.stream().next().now_or_never();
+  mock.assert_async().await;
+  assert_eq!(res.size(), Some(5));
+  let stream_output = res.stream().next().now_or_never();
   let output = stream_output.unwrap_or_else(|| panic!("No stream output"));
   let received_blob = output.unwrap_or_else(|| panic!("No blob data"))?;
   assert_eq!(blob.to_vec(), received_blob);

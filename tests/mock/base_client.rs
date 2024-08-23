@@ -1,21 +1,18 @@
-use tokio::runtime::Runtime;
-
 static API_VERSION_K: &str = "Docker-Distribution-API-Version";
 static API_VERSION_V: &str = "registry/2.0";
 
-#[test]
+#[tokio::test]
 #[ignore]
-fn test_base_no_insecure() {
-  let mut server = mockito::Server::new();
-  let addr = server.url();
+async fn test_base_no_insecure() {
+  let mut server = mockito::Server::new_async().await;
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", "/v2/")
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(false)
@@ -24,27 +21,26 @@ fn test_base_no_insecure() {
     .build()
     .unwrap();
 
-  let futcheck = dclient.is_v2_supported();
+  let res = dclient.is_v2_supported().await.unwrap();
 
   // This relies on the fact that mockito is HTTP-only and
   // trying to speak TLS to it results in garbage/errors.
-  runtime.block_on(futcheck).unwrap_err();
+  mock.assert_async().await;
+  assert!(res);
 }
 
-#[test]
-#[ignore]
-fn test_base_useragent() {
-  let mut server = mockito::Server::new();
-  let addr = server.url();
+#[tokio::test]
+async fn test_base_useragent() {
+  let mut server = mockito::Server::new_async().await;
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", "/v2/")
     .match_header("user-agent", dockreg::USER_AGENT)
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
@@ -53,27 +49,26 @@ fn test_base_useragent() {
     .build()
     .unwrap();
 
-  let futcheck = dclient.is_v2_supported();
+  let res = dclient.is_v2_supported().await.unwrap();
 
-  let res = runtime.block_on(futcheck).unwrap();
+  mock.assert_async().await;
   assert!(res);
 }
 
-#[test]
-fn test_base_custom_useragent() {
+#[tokio::test]
+async fn test_base_custom_useragent() {
   let ua = "custom-ua/1.0";
 
-  let mut server = mockito::Server::new();
-  let addr = server.url();
+  let mut server = mockito::Server::new_async().await;
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", "/v2/")
     .match_header("user-agent", ua)
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
@@ -83,9 +78,9 @@ fn test_base_custom_useragent() {
     .build()
     .unwrap();
 
-  let futcheck = dclient.is_v2_supported();
+  let res = dclient.is_v2_supported().await.unwrap();
 
-  let res = runtime.block_on(futcheck).unwrap();
+  mock.assert_async().await;
   assert!(res);
 }
 

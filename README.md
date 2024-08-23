@@ -3,33 +3,20 @@
 A pure-Rust asynchronous library for the Docker Registry HTTP API v2.
 
 `dockreg` provides support for asynchronous interaction with container registries
-conformant to the [Docker Registry HTTP API v2][registry-v2] specification.
-
-[registry-v2]: https://docs.docker.com/registry/spec/api/
+conformant to the [Docker Registry HTTP API v2](https://docs.docker.com/registry/spec/api/) specification.
 
 ## Configurable features
 
-The following is a list of [Cargo features][cargo-features] that consumers can enable or disable:
+The following is a list of [Cargo features](https://doc.rust-lang.org/stable/cargo/reference/manifest.html#the-features-section) that consumers can enable or disable:
 
- * **reqwest-default-tls** *(enabled by default)*: provides TLS support via [system-specific library][native-tls] (OpenSSL on Linux)
- * **reqwest-rustls**: provides TLS support via the [rustls][rustls] library
-
-[rustls]: https://docs.rs/rustls
-[native-tls]: https://docs.rs/native-tls
-[cargo-features]: https://doc.rust-lang.org/stable/cargo/reference/manifest.html#the-features-section
+ * **reqwest-default-tls** *(enabled by default)*: provides TLS support via [system-specific library](https://docs.rs/native-tls) (OpenSSL on Linux)
+ * **reqwest-rustls**: provides TLS support via the [rustls](https://docs.rs/rustls) library
 
 ## Testing
 
 ### Integration tests
 
-This library relies on the [mockito][mockito-gh] framework for mocking.
-
-Mock tests can be enabled via the `test-mock` feature:
-```
-cargo test --features test-mock
-```
-
-[mockito-gh]: https://github.com/lipanski/mockito
+This library relies on the [mockito](https://github.com/lipanski/mockito) framework for mocking.
 
 ### Interoperability tests
 
@@ -37,9 +24,9 @@ This library includes additional interoperability tests against some of the most
 
 Those tests are not run by default as they require network access and registry credentials.
 
-They are gated behind a dedicated "test-net" feature and can be run as:
+They are gated behind a dedicated "test-net-private" feature and can be run as:
 ```
-cargo test --features test-net
+cargo test --features test-net-private
 ```
 
 Credentials for those registries must be provided via environmental flags.

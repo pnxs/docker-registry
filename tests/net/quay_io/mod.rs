@@ -13,7 +13,7 @@ fn get_env() -> Option<(String, String)> {
   }
 }
 
-#[cfg(any(feature = "test-net", feature = "test-net-private"))]
+#[cfg(feature = "test-net-private")]
 fn common_init(login_scope: Option<&str>) -> Option<(tokio::runtime::Runtime, dockreg::v2::Client)> {
   let runtime = Runtime::new().unwrap();
 

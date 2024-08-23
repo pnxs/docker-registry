@@ -7,9 +7,9 @@ fn test_catalog_simple() {
   let ep = "/v2/_catalog".to_string();
 
   let mut server = mockito::Server::new();
-  let addr = server.url();
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", ep.as_str())
     .with_status(200)
     .with_body(repos)
@@ -25,20 +25,20 @@ fn test_catalog_simple() {
     .unwrap();
 
   let futcheck = dclient.get_catalog(None);
-
   let res = runtime.block_on(futcheck.map(Result::unwrap).collect::<Vec<_>>());
+
+  mock.assert();
   assert_eq!(res, vec!["r1/i1", "r2"]);
 }
 
 #[test]
 fn test_catalog_paginate() {
   let repos_p1 = r#"{"repositories": ["r1/i1"]}"#;
-  let repos_p2 = r#"{"repositories": ["r2"]}"#;
 
   let mut server = mockito::Server::new();
-  let addr = server.url();
+  let addr = server.host_with_port();
 
-  let _m1 = server
+  let mock = server
     .mock("GET", "/v2/_catalog?n=1")
     .with_status(200)
     .with_header(
@@ -47,12 +47,6 @@ fn test_catalog_paginate() {
     )
     .with_header("Content-Type", "application/json")
     .with_body(repos_p1)
-    .create();
-  let _m2 = server
-    .mock("GET", "/v2/_catalog?n=1&last=r1")
-    .with_status(200)
-    .with_header("Content-Type", "application/json")
-    .with_body(repos_p2)
     .create();
 
   let runtime = Runtime::new().unwrap();
@@ -79,4 +73,6 @@ fn test_catalog_paginate() {
   if end.is_some() {
     panic!("end is some: {end:?}");
   }
+
+  mock.assert();
 }

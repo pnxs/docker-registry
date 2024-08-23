@@ -8,9 +8,9 @@ fn test_dockerv2_tags_simple() {
   let ep = format!("/v2/{name}/tags/list");
 
   let mut server = mockito::Server::new();
-  let addr = server.url();
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", ep.as_str())
     .with_status(200)
     .with_header("Content-Type", "application/json")
@@ -29,6 +29,7 @@ fn test_dockerv2_tags_simple() {
   let futcheck = dclient.get_tags(name, None);
 
   let res = runtime.block_on(futcheck.map(Result::unwrap).collect::<Vec<_>>());
+  mock.assert();
   assert_eq!(res.first().unwrap(), &String::from("t1"));
   assert_eq!(res.get(1).unwrap(), &String::from("t2"));
 }
@@ -42,16 +43,16 @@ fn test_dockerv2_tags_paginate() {
   let ep2 = format!("/v2/{name}/tags/list?n=1&last=t1");
 
   let mut server = mockito::Server::new();
-  let addr = server.url();
+  let addr = server.host_with_port();
 
-  let _m1 = server
+  let mock1 = server
     .mock("GET", ep1.as_str())
     .with_status(200)
     .with_header("Link", &format!(r#"<{}/v2/_tags?n=1&last=t1>; rel="next""#, addr))
     .with_header("Content-Type", "application/json")
     .with_body(tags_p1)
     .create();
-  let _m2 = server
+  let mock2 = server
     .mock("GET", ep2.as_str())
     .with_status(200)
     .with_header("Content-Type", "application/json")
@@ -79,6 +80,9 @@ fn test_dockerv2_tags_paginate() {
   if end.is_some() {
     panic!("end is some: {end:?}");
   }
+
+  mock1.assert();
+  mock2.assert();
 }
 
 #[test]
@@ -87,9 +91,9 @@ fn test_dockerv2_tags_404() {
   let ep = format!("/v2/{name}/tags/list");
 
   let mut server = mockito::Server::new();
-  let addr = server.url();
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", ep.as_str())
     .with_status(404)
     .with_header("Content-Type", "application/json")
@@ -107,6 +111,7 @@ fn test_dockerv2_tags_404() {
   let futcheck = dclient.get_tags(name, None);
 
   let res = runtime.block_on(futcheck.collect::<Vec<_>>());
+  mock.assert();
   assert!(res.first().unwrap().is_err());
 }
 
@@ -117,9 +122,9 @@ fn test_dockerv2_tags_missing_header() {
   let ep = format!("/v2/{name}/tags/list");
 
   let mut server = mockito::Server::new();
-  let addr = server.url();
+  let addr = server.host_with_port();
 
-  let _m = server
+  let mock = server
     .mock("GET", ep.as_str())
     .with_status(200)
     .with_body(tags)
@@ -137,5 +142,6 @@ fn test_dockerv2_tags_missing_header() {
   let futcheck = dclient.get_tags(name, None);
 
   let res = runtime.block_on(futcheck.map(Result::unwrap).collect::<Vec<_>>());
+  mock.assert();
   assert_eq!(vec!["t1", "t2"], res);
 }
