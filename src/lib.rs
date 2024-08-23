@@ -6,7 +6,6 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! # use dockreg;
 //! # use tokio;
 //!
 //! # #[tokio::main]

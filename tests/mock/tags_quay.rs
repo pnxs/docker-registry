@@ -1,5 +1,4 @@
 use futures::StreamExt;
-use mockito::mock;
 use tokio::runtime::Runtime;
 
 #[test]
@@ -7,9 +6,12 @@ fn test_quay_tags_simple() {
   let name = "repo";
   let tags = r#"{"name": "repo", "tags": [ "t1", "t2" ]}"#;
 
-  let ep = format!("/v2/{}/tags/list", name);
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", ep.as_str())
+  let ep = format!("/v2/{name}/tags/list");
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", ep.as_str())
     .with_status(200)
     .with_header("Content-Type", "application/json")
     .with_body(tags)
@@ -29,8 +31,6 @@ fn test_quay_tags_simple() {
   let res = runtime.block_on(futcheck.map(Result::unwrap).collect::<Vec<_>>());
   assert_eq!(res.first().unwrap(), &String::from("t1"));
   assert_eq!(res.get(1).unwrap(), &String::from("t2"));
-
-  mockito::reset();
 }
 
 #[test]
@@ -38,20 +38,21 @@ fn test_quay_tags_paginate() {
   let name = "repo";
   let tags_p1 = r#"{"name": "repo", "tags": [ "t1" ]}"#;
   let tags_p2 = r#"{"name": "repo", "tags": [ "t2" ]}"#;
+  let ep1 = format!("/v2/{name}/tags/list?n=1");
+  let ep2 = format!("/v2/{name}/tags/list?n=1&next_page=t1");
 
-  let ep1 = format!("/v2/{}/tags/list?n=1", name);
-  let ep2 = format!("/v2/{}/tags/list?n=1&next_page=t1", name);
-  let addr = mockito::server_address().to_string();
-  let _m1 = mock("GET", ep1.as_str())
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m1 = server
+    .mock("GET", ep1.as_str())
     .with_status(200)
-    .with_header(
-      "Link",
-      &format!(r#"<{}/v2/_tags?n=1&next_page=t1>; rel="next""#, mockito::server_url()),
-    )
+    .with_header("Link", &format!(r#"<{}/v2/_tags?n=1&next_page=t1>; rel="next""#, addr))
     .with_header("Content-Type", "application/json")
     .with_body(tags_p1)
     .create();
-  let _m2 = mock("GET", ep2.as_str())
+  let _m2 = server
+    .mock("GET", ep2.as_str())
     .with_status(200)
     .with_header("Content-Type", "application/json")
     .with_body(tags_p2)
@@ -76,18 +77,20 @@ fn test_quay_tags_paginate() {
 
   let (end, _) = runtime.block_on(stream_rest.into_future());
   if end.is_some() {
-    panic!("end is some: {:?}", end);
+    panic!("end is some: {end:?}");
   }
-
-  mockito::reset();
 }
 
 #[test]
 fn test_quay_tags_404() {
   let name = "repo";
   let ep = format!("/v2/{}/tags/list", name);
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", ep.as_str())
+
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", ep.as_str())
     .with_status(404)
     .with_header("Content-Type", "application/json")
     .create();
@@ -105,8 +108,6 @@ fn test_quay_tags_404() {
 
   let res = runtime.block_on(futcheck.collect::<Vec<_>>());
   assert!(res.first().unwrap().is_err());
-
-  mockito::reset();
 }
 
 #[test]
@@ -115,8 +116,14 @@ fn test_quay_tags_missing_header() {
   let tags = r#"{"name": "repo", "tags": [ "t1", "t2" ]}"#;
   let ep = format!("/v2/{}/tags/list", name);
 
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", ep.as_str()).with_status(200).with_body(tags).create();
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", ep.as_str())
+    .with_status(200)
+    .with_body(tags)
+    .create();
 
   let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
@@ -131,6 +138,4 @@ fn test_quay_tags_missing_header() {
 
   let res = runtime.block_on(futcheck.map(Result::unwrap).collect::<Vec<_>>());
   assert_eq!(vec!["t1", "t2"], res);
-
-  mockito::reset();
 }

@@ -1,4 +1,3 @@
-use mockito::mock;
 use tokio::runtime::Runtime;
 
 static API_VERSION_K: &str = "Docker-Distribution-API-Version";
@@ -6,8 +5,11 @@ static API_VERSION_V: &str = "registry/2.0";
 
 #[test]
 fn test_version_check_status_ok() {
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2/")
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", "/v2/")
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
@@ -27,14 +29,15 @@ fn test_version_check_status_ok() {
 
   let ensure_v2 = dclient.ensure_v2_registry();
   let _dclient = runtime.block_on(ensure_v2).unwrap();
-
-  mockito::reset();
 }
 
 #[test]
 fn test_version_check_status_unauth() {
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2/")
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", "/v2/")
     .with_status(401)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
@@ -52,14 +55,15 @@ fn test_version_check_status_unauth() {
 
   let res = runtime.block_on(futcheck).unwrap();
   assert!(res);
-
-  mockito::reset();
 }
 
 #[test]
 fn test_version_check_status_notfound() {
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2/")
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", "/v2/")
     .with_status(404)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
@@ -77,14 +81,15 @@ fn test_version_check_status_notfound() {
 
   let res = runtime.block_on(futcheck).unwrap();
   assert!(!res);
-
-  mockito::reset();
 }
 
 #[test]
 fn test_version_check_status_forbidden() {
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2/")
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", "/v2/")
     .with_status(403)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
@@ -102,14 +107,14 @@ fn test_version_check_status_forbidden() {
 
   let res = runtime.block_on(futcheck).unwrap();
   assert!(!res);
-
-  mockito::reset();
 }
 
 #[test]
 fn test_version_check_noheader() {
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2/").with_status(403).create();
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server.mock("GET", "/v2/").with_status(403).create();
 
   let runtime = Runtime::new().unwrap();
   let dclient = dockreg::v2::Client::configure()
@@ -124,14 +129,15 @@ fn test_version_check_noheader() {
 
   let res = runtime.block_on(futcheck).unwrap();
   assert!(!res);
-
-  mockito::reset();
 }
 
 #[test]
 fn test_version_check_trailing_slash() {
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2")
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", "/v2")
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
@@ -149,6 +155,4 @@ fn test_version_check_trailing_slash() {
 
   let res = runtime.block_on(futcheck).unwrap();
   assert!(!res);
-
-  mockito::reset();
 }

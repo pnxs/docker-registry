@@ -84,8 +84,8 @@ fn test_labels_manifest_v2s1_signed() {
   let manif: dockreg::v2::manifest::ManifestSchema1Signed = serde_json::from_reader(bufrd).unwrap();
   assert_eq!(None, manif.get_labels(0));
 
-  let f =
-    fs::File::open("tests/fixtures/quayio_steveej_cincinnati-test-labels_dockreg-test.json").expect("Missing fixture");
+  let f = fs::File::open("tests/fixtures/quayio_steveej_cincinnati-test-labels_dkregistry-test.json")
+    .expect("Missing fixture");
   let bufrd = io::BufReader::new(f);
   let manif: dockreg::v2::manifest::ManifestSchema1Signed = serde_json::from_reader(bufrd).unwrap();
 

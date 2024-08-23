@@ -1,4 +1,3 @@
-use mockito::mock;
 use tokio::runtime::Runtime;
 
 static API_VERSION_K: &str = "Docker-Distribution-API-Version";
@@ -7,8 +6,11 @@ static API_VERSION_V: &str = "registry/2.0";
 #[test]
 #[ignore]
 fn test_base_no_insecure() {
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2/")
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", "/v2/")
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
@@ -27,15 +29,16 @@ fn test_base_no_insecure() {
   // This relies on the fact that mockito is HTTP-only and
   // trying to speak TLS to it results in garbage/errors.
   runtime.block_on(futcheck).unwrap_err();
-
-  mockito::reset();
 }
 
 #[test]
 #[ignore]
 fn test_base_useragent() {
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2/")
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", "/v2/")
     .match_header("user-agent", dockreg::USER_AGENT)
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
@@ -54,16 +57,17 @@ fn test_base_useragent() {
 
   let res = runtime.block_on(futcheck).unwrap();
   assert!(res);
-
-  mockito::reset();
 }
 
 #[test]
 fn test_base_custom_useragent() {
   let ua = "custom-ua/1.0";
 
-  let addr = mockito::server_address().to_string();
-  let _m = mock("GET", "/v2/")
+  let mut server = mockito::Server::new();
+  let addr = server.url();
+
+  let _m = server
+    .mock("GET", "/v2/")
     .match_header("user-agent", ua)
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
@@ -83,8 +87,6 @@ fn test_base_custom_useragent() {
 
   let res = runtime.block_on(futcheck).unwrap();
   assert!(res);
-
-  mockito::reset();
 }
 
 mod test_custom_root_certificate {
@@ -102,20 +104,17 @@ mod test_custom_root_certificate {
     println!("Will accept tls connections at {}", listener.local_addr()?);
 
     let mut incoming = listener.incoming();
-
     let test_server = native_tls::TlsAcceptor::new(identity).unwrap();
 
     if let Some(stream_result) = incoming.next() {
       println!("Incoming");
-
       let stream = stream_result?;
 
       println!("Accepting incoming as tls");
-
       let accept_result = test_server.accept(stream);
 
       if let Err(e) = map_tls_io_error(accept_result) {
-        eprintln!("Accept failed: {:?}", e);
+        eprintln!("Accept failed: {e:?}");
       }
 
       println!("Done with stream");
@@ -130,7 +129,6 @@ mod test_custom_root_certificate {
 
   async fn run_client(ca_certificate: Option<Certificate>, client_host: String) {
     println!("Client creating");
-
     let mut config = Client::configure().registry(&client_host);
 
     if let Some(ca) = &ca_certificate {
@@ -138,7 +136,6 @@ mod test_custom_root_certificate {
     }
 
     let registry = config.build().unwrap();
-
     let err = registry.is_auth().await.unwrap_err();
 
     if let dockreg::errors::Error::Reqwest(r) = err {
@@ -146,7 +143,7 @@ mod test_custom_root_certificate {
         let oh: Option<&hyper::Error> = s.downcast_ref();
 
         if let Some(he) = oh {
-          println!("Hyper error: {:?}", he);
+          println!("Hyper error: {he:?}");
 
           if ca_certificate.is_some() {
             assert!(he.is_closed(), "is a ChannelClosed error, not a certificate error");
@@ -161,14 +158,13 @@ mod test_custom_root_certificate {
             let message = format!("{}", hec);
             assert!(
               message.contains("certificate verify failed"),
-              "'certificate verify failed' contained in: {}",
-              message
+              "'certificate verify failed' contained in: {message}"
             );
           }
         }
       }
     } else {
-      eprintln!("Unexpected error: {:?}", err);
+      eprintln!("Unexpected error: {err:?}");
     }
   }
 
@@ -180,7 +176,7 @@ mod test_custom_root_certificate {
       Ok(stream) => Ok(stream),
       Err(he) => {
         match he {
-          HandshakeError::Failure(e) => Err(format!("{}", e)),
+          HandshakeError::Failure(e) => Err(format!("{e:#?}")),
           // Can't directly unwrap because TlsStream doesn't implement Debug trait
           HandshakeError::WouldBlock(_) => Err("Would block".into()),
         }
@@ -230,11 +226,8 @@ mod test_custom_root_certificate {
     // local_addr returns an IP address, but we need to use a name for TLS,
     // so extract only the port number.
     let listener_port = listener.local_addr().unwrap().port();
-
-    let client_host = format!("localhost:{}", listener_port);
-
+    let client_host = format!("localhost:{listener_port}");
     let t_server = std::thread::spawn(move || run_server(listener, registry_identity));
-
     let t_client = tokio::task::spawn(async move { run_client(ca_certificate, client_host).await });
 
     println!("Joining client");

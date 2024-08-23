@@ -1,5 +1,7 @@
 use std::{boxed, error, result::Result};
 
+use tracing::{error, warn};
+
 #[tokio::main]
 async fn main() {
   let registry = match std::env::args().nth(1) {
@@ -14,17 +16,17 @@ async fn main() {
 
   let user = std::env::var("DKREG_USER").ok();
   if user.is_none() {
-    println!("[{}] no $DKREG_USER for login user", registry);
+    warn!("[{registry}] no $DKREG_USER for login user");
   }
   let password = std::env::var("DKREG_PASSWD").ok();
   if password.is_none() {
-    println!("[{}] no $DKREG_PASSWD for login password", registry);
+    warn!("[{registry}] no $DKREG_PASSWD for login password");
   }
 
   let res = run(&registry, user, password, login_scope).await;
 
   if let Err(e) = res {
-    println!("[{}] {}", registry, e);
+    error!("[{registry}] {e}");
     std::process::exit(1);
   };
 }

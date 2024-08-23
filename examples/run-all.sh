@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
+
 set -e
+
 for path in examples/*.rs; do
   file="${path##*/}"
   example="${file%%.*}"

@@ -1,6 +1,7 @@
 use std::{boxed, error, result::Result};
 
 use futures::stream::StreamExt;
+use tracing::{error, info, warn};
 
 #[tokio::main]
 async fn main() {
@@ -13,21 +14,21 @@ async fn main() {
     Some(x) => x,
     None => "library/debian".into(),
   };
-  println!("[{}] requesting tags for image {}", registry, image);
+  info!("[{registry}] requesting tags for image {image}");
 
   let user = std::env::var("DKREG_USER").ok();
   if user.is_none() {
-    println!("[{}] no $DKREG_USER for login user", registry);
+    warn!("[{registry}] no $DKREG_USER for login user");
   }
   let password = std::env::var("DKREG_PASSWD").ok();
   if password.is_none() {
-    println!("[{}] no $DKREG_PASSWD for login password", registry);
+    warn!("[{registry}] no $DKREG_PASSWD for login password");
   }
 
   let res = run(&registry, user, password, &image).await;
 
   if let Err(e) = res {
-    println!("[{}] {}", registry, e);
+    error!("[{}] {}", registry, e);
     std::process::exit(1);
   };
 }
@@ -50,7 +51,7 @@ async fn run(
     .password(passwd)
     .build()?;
 
-  let login_scope = format!("repository:{}:pull", image);
+  let login_scope = format!("repository:{image}:pull");
 
   let dclient = client.authenticate(&[&login_scope]).await?;
 
@@ -61,7 +62,7 @@ async fn run(
     .into_iter()
     .map(Result::unwrap)
     .for_each(|tag| {
-      println!("{:?}", tag);
+      info!("{tag}");
     });
 
   Ok(())
