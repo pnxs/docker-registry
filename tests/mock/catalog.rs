@@ -16,7 +16,7 @@ fn test_catalog_simple() {
     .create();
 
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -50,7 +50,7 @@ fn test_catalog_paginate() {
     .create();
 
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)

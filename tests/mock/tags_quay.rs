@@ -18,7 +18,7 @@ fn test_quay_tags_simple() {
     .create();
 
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -60,7 +60,7 @@ fn test_quay_tags_paginate() {
     .create();
 
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -100,7 +100,7 @@ fn test_quay_tags_404() {
     .create();
 
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -131,7 +131,7 @@ fn test_quay_tags_missing_header() {
     .create();
 
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)

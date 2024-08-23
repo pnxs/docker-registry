@@ -358,13 +358,13 @@ mod tests {
   }
 
   // Testing for this situation to work:
-  // [TRACE dockreg::v2::auth] Sending request to 'https://localhost:5000/v2/'
-  // [TRACE dockreg::v2::auth] GET 'Response { url: "https://localhost:5000/v2/", status: 401, headers: {"content-type": "application/json; charset=utf-8", "docker-distribution-api-version": "registry/2.0", "www-authenticate": "Basic realm=\"Registry\"", "x-content-type-options": "nosniff", "date": "Thu, 18 Jun 2020 09:04:24 GMT", "content-length": "87"} }'
-  // [TRACE dockreg::v2::auth] GET 'https://localhost:5000/v2/' status: 401
-  // [TRACE dockreg::v2::auth] Token provider: Registry
-  // [TRACE dockreg::v2::auth] login: token endpoint: Registry&scope=repository:cincinnati-ci/ocp-release-dev:pull
-  // [ERROR graph_builder::graph] failed to fetch all release metadata
-  // [ERROR graph_builder::graph] failed to parse url from string
+  // [TRACE docker_registry::v2::auth] Sending request to 'https://localhost:5000/v2/'
+  // [TRACE docker_registry::v2::auth] GET 'Response { url: "https://localhost:5000/v2/", status: 401, headers: {"content-type": "application/json; charset=utf-8", "docker-distribution-api-version": "registry/2.0", "www-authenticate": "Basic realm=\"Registry\"", "x-content-type-options": "nosniff", "date": "Thu, 18 Jun 2020 09:04:24 GMT", "content-length": "87"} }'
+  // [TRACE docker_registry::v2::auth] GET 'https://localhost:5000/v2/' status: 401
+  // [TRACE docker_registry::v2::auth] Token provider: Registry
+  // [TRACE docker_registry::v2::auth] login: token endpoint:
+  // Registry&scope=repository:cincinnati-ci/ocp-release-dev:pull [ERROR graph_builder::graph] failed to fetch all
+  // release metadata [ERROR graph_builder::graph] failed to parse url from string
   // 'Registry&scope=repository:cincinnati-ci/ocp-release-dev:pull': relative URL without a base
   #[test]
   fn basic_realm_parses_correctly() -> Result<()> {

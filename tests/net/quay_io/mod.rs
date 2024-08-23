@@ -1,4 +1,4 @@
-use dockreg::mediatypes::MediaTypes;
+use docker_registry::mediatypes::MediaTypes;
 use futures::stream::StreamExt;
 use tokio::runtime::Runtime;
 
@@ -14,7 +14,7 @@ fn get_env() -> Option<(String, String)> {
 }
 
 #[cfg(feature = "test-net-private")]
-fn common_init(login_scope: Option<&str>) -> Option<(tokio::runtime::Runtime, dockreg::v2::Client)> {
+fn common_init(login_scope: Option<&str>) -> Option<(tokio::runtime::Runtime, docker_registry::v2::Client)> {
   let runtime = Runtime::new().unwrap();
 
   let (user, password, login_scope) = if let Some(login_scope) = login_scope {
@@ -28,7 +28,7 @@ fn common_init(login_scope: Option<&str>) -> Option<(tokio::runtime::Runtime, do
 
   let dclient = runtime
     .block_on(
-      dockreg::v2::Client::configure()
+      docker_registry::v2::Client::configure()
         .registry(REGISTRY)
         .insecure_registry(false)
         .username(user)
@@ -57,7 +57,7 @@ fn test_quayio_base() {
   };
 
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(false)
     .username(Some(user))
@@ -75,7 +75,7 @@ fn test_quayio_base() {
 #[ignore]
 fn test_quayio_insecure() {
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(true)
     .username(None)
@@ -103,7 +103,7 @@ fn test_quayio_auth_login() {
 #[test]
 fn test_quayio_get_tags_simple() {
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(false)
     .username(None)
@@ -122,7 +122,7 @@ fn test_quayio_get_tags_simple() {
 #[test]
 fn test_quayio_get_tags_limit() {
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(false)
     .username(None)
@@ -141,7 +141,7 @@ fn test_quayio_get_tags_limit() {
 #[test]
 fn test_quayio_get_tags_pagination() {
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(false)
     .username(None)
@@ -177,7 +177,7 @@ fn test_quayio_auth_tags() {
 #[test]
 fn test_quayio_has_manifest() {
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(false)
     .username(None)
@@ -210,7 +210,7 @@ fn test_quayio_auth_manifest() {
 #[test]
 fn test_quayio_has_no_manifest() {
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(false)
     .username(None)

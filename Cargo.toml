@@ -1,15 +1,19 @@
 [package]
-name = "dockreg"
+name = "docker-registry"
 rust-version = "1.70.0"
 version = "0.5.1-alpha.0"
 authors = ["Bryant Biggs <bryantbiggs@gamil.com>", "Luca Bruno <lucab@debian.org>", "Stefan Junker <sjunker@redhat.com>"]
 license = "MIT OR Apache-2.0"
-documentation = "https://docs.rs/dockreg"
-repository = "https://github.com/clowdhaus/dockreg-rs"
-description = "A pure-Rust asynchronous library for Docker Registry API"
-keywords = ["docker", "registry", "async"]
+documentation = "https://docs.rs/docker-registry"
+repository = "https://github.com/clowdhaus/docker-registry-http-api-v2"
+description = "A pure-Rust asynchronous library for Docker Registry HTTP API v2"
+keywords = [
+  "docker", 
+  "registry", 
+  "async",
+]
 exclude = [
-".gitignore",
+  ".gitignore",
 ]
 edition = "2021"
 
@@ -17,10 +21,10 @@ edition = "2021"
 disable-publish = true
 disable-push = true
 post-release-commit-message = "cargo: development version bump"
-pre-release-commit-message = "cargo: dockreg release {{version}}"
+pre-release-commit-message = "cargo: docker-registry release {{version}}"
 sign-commit = true
 sign-tag = true
-tag-message = "dockreg v{{version}}"
+tag-message = "docker-registry v{{version}}"
 
 [dependencies]
 base64 = "0.22"
@@ -37,16 +41,16 @@ tar = "0.4"
 tokio = { version = "1.0", default-features = false, features = ["macros", "rt-multi-thread"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "stream"] }
 sha2 = "0.10"
-bytes = "1.1"
-pin-project = "1.0"
+bytes = "1.7"
+pin-project = "1.1"
 async-stream = "0.3"
 thiserror = "1.0"
-url = "2.1"
+url = "2.5"
 
 [dev-dependencies]
 dirs = "5.0"
 env_logger = "0.11"
-hyper = "0.14"
+hyper = "1.4"
 mockito = "1.5"
 native-tls = "0.2"
 test-case = "3.3"

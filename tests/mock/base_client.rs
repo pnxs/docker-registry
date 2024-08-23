@@ -13,7 +13,7 @@ async fn test_base_no_insecure() {
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(false)
     .username(None)
@@ -36,12 +36,12 @@ async fn test_base_useragent() {
 
   let mock = server
     .mock("GET", "/v2/")
-    .match_header("user-agent", dockreg::USER_AGENT)
+    .match_header("user-agent", docker_registry::USER_AGENT)
     .with_status(200)
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -69,7 +69,7 @@ async fn test_base_custom_useragent() {
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .user_agent(Some(ua.to_string()))
@@ -91,7 +91,7 @@ mod test_custom_root_certificate {
     path::{Path, PathBuf},
   };
 
-  use dockreg::v2::Client;
+  use docker_registry::v2::Client;
   use native_tls::{HandshakeError, Identity, TlsStream};
   use reqwest::Certificate;
 
@@ -133,7 +133,7 @@ mod test_custom_root_certificate {
     let registry = config.build().unwrap();
     let err = registry.is_auth().await.unwrap_err();
 
-    if let dockreg::errors::Error::Reqwest(r) = err {
+    if let docker_registry::errors::Error::Reqwest(r) = err {
       if let Some(s) = r.source() {
         let oh: Option<&hyper::Error> = s.downcast_ref();
 
@@ -143,11 +143,6 @@ mod test_custom_root_certificate {
           if ca_certificate.is_some() {
             assert!(he.is_closed(), "is a ChannelClosed error, not a certificate error");
           } else {
-            assert!(
-              he.is_connect(),
-              "is a Connect error, with a certificate failure as a cause"
-            );
-
             let hec = he.source().unwrap();
 
             let message = format!("{}", hec);

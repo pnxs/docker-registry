@@ -20,7 +20,7 @@ async fn test_blobs_has_layer() {
     .with_header("Docker-Content-Digest", binary_digest)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -45,7 +45,7 @@ async fn test_blobs_hasnot_layer() {
 
   let mock = server.mock("HEAD", ep.as_str()).with_status(404).create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -75,7 +75,7 @@ async fn get_blobs_succeeds_with_consistent_layer() -> Fallible<()> {
     .with_body(blob)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -108,7 +108,7 @@ async fn get_blobs_fails_with_inconsistent_layer() -> Fallible<()> {
     .with_body(blob2)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -142,7 +142,7 @@ async fn get_blobs_stream() -> Fallible<()> {
     .with_body(blob)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)

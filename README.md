@@ -2,7 +2,7 @@
 
 A pure-Rust asynchronous library for the Docker Registry HTTP API v2.
 
-`dockreg` provides support for asynchronous interaction with container registries
+`docker-registry` provides support for asynchronous interaction with container registries
 conformant to the [Docker Registry HTTP API v2](https://docs.docker.com/registry/spec/api/) specification.
 
 ## Configurable features

@@ -26,7 +26,7 @@ fn test_dockerio_base() {
   };
 
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(false)
     .username(Some(user))
@@ -43,7 +43,7 @@ fn test_dockerio_base() {
 #[test]
 fn test_dockerio_insecure() {
   let runtime = Runtime::new().unwrap();
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(true)
     .username(None)
@@ -64,7 +64,7 @@ fn test_dockerio_anonymous_auth() {
   let version = "latest";
   let login_scope = format!("repository:{}:pull", image);
   let scopes = vec![login_scope.as_str()];
-  let dclient_future = dockreg::v2::Client::configure()
+  let dclient_future = docker_registry::v2::Client::configure()
     .registry(REGISTRY)
     .insecure_registry(false)
     .username(None)

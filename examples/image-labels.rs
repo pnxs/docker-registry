@@ -1,6 +1,6 @@
 use std::{env, fs, io, result::Result, str::FromStr};
 
-use dockreg::{reference, v2::manifest::Manifest};
+use docker_registry::{reference, v2::manifest::Manifest};
 use tracing::{error, info, warn};
 
 #[tokio::main]
@@ -19,7 +19,7 @@ async fn main() {
   let home = dirs::home_dir().unwrap();
   let cfg = fs::File::open(home.join(".docker/config.json"));
   if let Ok(fp) = cfg {
-    let creds = dockreg::get_credentials(io::BufReader::new(fp), &registry);
+    let creds = docker_registry::get_credentials(io::BufReader::new(fp), &registry);
     if let Ok(user_pass) = creds {
       user = user_pass.0;
       password = user_pass.1;
@@ -49,8 +49,8 @@ async fn run(
   dkr_ref: &reference::Reference,
   user: Option<String>,
   passwd: Option<String>,
-) -> Result<(), dockreg::errors::Error> {
-  let client = dockreg::v2::Client::configure()
+) -> Result<(), docker_registry::errors::Error> {
+  let client = docker_registry::v2::Client::configure()
     .registry(&dkr_ref.registry())
     .insecure_registry(false)
     .username(user)

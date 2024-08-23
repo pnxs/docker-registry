@@ -10,9 +10,9 @@
 //!
 //! # #[tokio::main]
 //! # async fn main() {
-//! # async fn run() -> dockreg::errors::Result<()> {
+//! # async fn run() -> docker_registry::errors::Result<()> {
 //! #
-//! use dockreg::v2::Client;
+//! use docker_registry::v2::Client;
 //!
 //! // Check whether a registry supports API v2.
 //! let host = "quay.io";
@@ -48,7 +48,7 @@ use base64::prelude::*;
 use errors::{Error, Result};
 
 /// Default User-Agent client identity.
-pub static USER_AGENT: &str = "camallo-dockreg/0.0";
+pub static USER_AGENT: &str = "camallo-docker_registry/0.0";
 
 /// Get registry credentials from a JSON config reader.
 ///

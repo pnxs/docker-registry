@@ -1,6 +1,6 @@
 use std::{boxed, env, error, fs, io, path::Path, result::Result};
 
-use dockreg::render;
+use docker_registry::render;
 use futures::future::try_join_all;
 use tracing::{error, info, warn};
 
@@ -41,7 +41,7 @@ async fn main() -> Result<(), boxed::Box<dyn error::Error>> {
   let home = dirs::home_dir().unwrap();
   let cfg = fs::File::open(home.join(".docker/config.json"));
   if let Ok(fp) = cfg {
-    let creds = dockreg::get_credentials(io::BufReader::new(fp), &registry);
+    let creds = docker_registry::get_credentials(io::BufReader::new(fp), &registry);
     if let Ok(user_pass) = creds {
       user = user_pass.0;
       password = user_pass.1;
@@ -78,11 +78,11 @@ async fn run(
   path: &Path,
 ) -> Result<(), boxed::Box<dyn error::Error>> {
   env_logger::Builder::new()
-    .filter(Some("dockreg"), log::LevelFilter::Trace)
+    .filter(Some("docker_registry"), log::LevelFilter::Trace)
     .filter(Some("trace"), log::LevelFilter::Trace)
     .try_init()?;
 
-  let client = dockreg::v2::Client::configure()
+  let client = docker_registry::v2::Client::configure()
     .registry(registry)
     .insecure_registry(false)
     .username(user)

@@ -38,11 +38,11 @@ async fn run(
   login_scope: String,
 ) -> Result<(), boxed::Box<dyn error::Error>> {
   env_logger::Builder::new()
-    .filter(Some("dockreg"), log::LevelFilter::Trace)
+    .filter(Some("docker_registry"), log::LevelFilter::Trace)
     .filter(Some("trace"), log::LevelFilter::Trace)
     .try_init()?;
 
-  let client = dockreg::v2::Client::configure()
+  let client = docker_registry::v2::Client::configure()
     .registry(host)
     .insecure_registry(false)
     .username(user)

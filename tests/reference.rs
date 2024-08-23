@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use dockreg::reference::Reference;
+use docker_registry::reference::Reference;
 
 #[test]
 fn valid_references() {
@@ -15,7 +15,7 @@ fn valid_references() {
       Tcase {
         input: "",
         expected_repo: "library/busybox",
-        expected_registry: dockreg::reference::DEFAULT_REGISTRY,
+        expected_registry: docker_registry::reference::DEFAULT_REGISTRY,
       }
     }
   }

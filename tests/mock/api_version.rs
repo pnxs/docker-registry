@@ -12,7 +12,7 @@ async fn test_version_check_status_ok() {
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -39,7 +39,7 @@ async fn test_version_check_status_unauth() {
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -64,7 +64,7 @@ async fn test_version_check_status_notfound() {
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -89,7 +89,7 @@ async fn test_version_check_status_forbidden() {
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -109,7 +109,7 @@ async fn test_version_check_noheader() {
   let addr = server.host_with_port();
   let mock = server.mock("GET", "/v2/").with_status(403).create_async().await;
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)
@@ -134,7 +134,7 @@ async fn test_version_check_trailing_slash() {
     .with_header(API_VERSION_K, API_VERSION_V)
     .create();
 
-  let dclient = dockreg::v2::Client::configure()
+  let dclient = docker_registry::v2::Client::configure()
     .registry(&addr)
     .insecure_registry(true)
     .username(None)

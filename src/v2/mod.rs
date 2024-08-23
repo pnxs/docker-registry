@@ -11,9 +11,9 @@
 //!
 //! # #[tokio::main]
 //! # async fn main() {
-//! # async fn run() -> dockreg::errors::Result<()> {
+//! # async fn run() -> docker_registry::errors::Result<()> {
 //! #
-//! use dockreg::v2::Client;
+//! use docker_registry::v2::Client;
 //!
 //! // Retrieve an image manifest.
 //! let dclient = Client::configure().registry("quay.io").build()?;

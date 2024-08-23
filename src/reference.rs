@@ -6,11 +6,11 @@
 //!
 //! ```rust
 //! # fn main() {
-//! # fn run() -> dockreg::errors::Result<()> {
+//! # fn run() -> docker_registry::errors::Result<()> {
 //! #
 //! use std::str::FromStr;
 //!
-//! use dockreg::reference::Reference;
+//! use docker_registry::reference::Reference;
 //!
 //! // Parse an image reference
 //! let dkref = Reference::from_str("docker://busybox")?;

@@ -1,7 +1,7 @@
 {
    "schemaVersion": 1,
    "name": "steveej/cincinnati-test-labels",
-   "tag": "dockreg-test",
+   "tag": "docker-registry-test",
    "architecture": "amd64",
    "fsLayers": [
       {
