@@ -5,6 +5,11 @@ use tracing::{error, info, warn};
 
 #[tokio::main]
 async fn main() {
+  tracing_subscriber::fmt()
+    .pretty()
+    .with_max_level(tracing::Level::INFO)
+    .init();
+
   let dkr_ref = match std::env::args().nth(1) {
     Some(ref x) => reference::Reference::from_str(x),
     None => reference::Reference::from_str("quay.io/steveej/cincinnati-test-labels:0.0.0"),
@@ -27,13 +32,13 @@ async fn main() {
       warn!("[{registry}] no credentials found in config.json");
     }
   } else {
-    user = env::var("DKREG_USER").ok();
+    user = env::var("DOCKER_REGISTRY_USER").ok();
     if user.is_none() {
-      warn!("[{registry}] no $DKREG_USER for login user");
+      warn!("[{registry}] no $DOCKER_REGISTRY_USER for login user");
     }
-    password = env::var("DKREG_PASSWD").ok();
+    password = env::var("DOCKER_REGISTRY_PASSWD").ok();
     if password.is_none() {
-      warn!("[{registry}] no $DKREG_PASSWD for login password");
+      warn!("[{registry}] no $DOCKER_REGISTRY_PASSWD for login password");
     }
   };
 
@@ -61,8 +66,8 @@ async fn run(
   let login_scope = format!("repository:{image}:pull");
   let version = dkr_ref.version();
 
-  let dclient = client.authenticate(&[&login_scope]).await?;
-  let manifest = dclient.get_manifest(&image, &version).await?;
+  let client = client.authenticate(&[&login_scope]).await?;
+  let manifest = client.get_manifest(&image, &version).await?;
 
   if let Manifest::S1Signed(s1s) = manifest {
     let labels = s1s.get_labels(0);

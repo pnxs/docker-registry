@@ -4,6 +4,11 @@ use tracing::{error, warn};
 
 #[tokio::main]
 async fn main() {
+  tracing_subscriber::fmt()
+    .pretty()
+    .with_max_level(tracing::Level::INFO)
+    .init();
+
   let registry = match std::env::args().nth(1) {
     Some(x) => x,
     None => "registry-1.docker.io".into(),
@@ -14,13 +19,13 @@ async fn main() {
     None => "".into(),
   };
 
-  let user = std::env::var("DKREG_USER").ok();
+  let user = std::env::var("DOCKER_REGISTRY_USER").ok();
   if user.is_none() {
-    warn!("[{registry}] no $DKREG_USER for login user");
+    warn!("[{registry}] no $DOCKER_REGISTRY_USER for login user");
   }
-  let password = std::env::var("DKREG_PASSWD").ok();
+  let password = std::env::var("DOCKER_REGISTRY_PASSWD").ok();
   if password.is_none() {
-    warn!("[{registry}] no $DKREG_PASSWD for login password");
+    warn!("[{registry}] no $DOCKER_REGISTRY_PASSWD for login password");
   }
 
   let res = run(&registry, user, password, login_scope).await;
@@ -37,11 +42,6 @@ async fn run(
   passwd: Option<String>,
   login_scope: String,
 ) -> Result<(), boxed::Box<dyn error::Error>> {
-  env_logger::Builder::new()
-    .filter(Some("docker_registry"), log::LevelFilter::Trace)
-    .filter(Some("trace"), log::LevelFilter::Trace)
-    .try_init()?;
-
   let client = docker_registry::v2::Client::configure()
     .registry(host)
     .insecure_registry(false)
@@ -49,7 +49,7 @@ async fn run(
     .password(passwd)
     .build()?;
 
-  let dclient = client.authenticate(&[&login_scope]).await?;
-  dclient.is_auth().await?;
+  let client = client.authenticate(&[&login_scope]).await?;
+  client.is_auth().await?;
   Ok(())
 }
