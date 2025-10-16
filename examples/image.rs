@@ -3,6 +3,7 @@ use std::{boxed, env, error, fs, io, path::Path, result::Result};
 use docker_registry::render;
 use futures::future::try_join_all;
 use tracing::{error, info, warn};
+use docker_registry::v2::manifest::Manifest;
 
 #[tokio::main]
 async fn main() -> Result<(), boxed::Box<dyn error::Error>> {
@@ -18,7 +19,7 @@ async fn main() -> Result<(), boxed::Box<dyn error::Error>> {
 
   let version = match std::env::args().nth(3) {
     Some(x) => x,
-    None => "latest".into(),
+    None => "v3.6.5".into(),
   };
 
   let path_string = format!("{}:{}", &image, &version).replace("/", "_");
@@ -93,6 +94,15 @@ async fn run(
 
   let client = client.authenticate(&[&login_scope]).await?;
   let manifest = client.get_manifest(image, version).await?;
+
+  let manifest = if let Manifest::ML(manifest_list) = &manifest  {
+    let x = &manifest_list.manifests[0];
+    let (m, _) = client.get_manifest_and_ref(image, &x.digest).await?;
+    m
+  } else {
+    manifest
+  };
+
   let layers_digests = manifest.layers_digests(None)?;
 
   info!("{} -> got {} layer(s)", &image, layers_digests.len(),);
