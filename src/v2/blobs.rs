@@ -13,6 +13,7 @@ use crate::{
   errors::{Error, Result},
   v2::*,
 };
+use crate::v2::manifest::Layer;
 
 impl Client {
   /// Check if a blob exists.
@@ -33,8 +34,18 @@ impl Client {
   }
 
   pub async fn get_blob_response(&self, name: &str, digest: &str) -> Result<BlobResponse> {
-    let ep = format!("{}/v2/{}/blobs/{}", self.base_url, name, digest);
+    let layer = Layer {
+      digest: digest.to_string(),
+      media_type: "application/vnd.docker.image.rootfs.diff.tar.gzip".to_string(),
+    };
+    self.get_blob_response_from_layer(name, &layer).await
+  }
+
+  pub async fn get_blob_response_from_layer(&self, name: &str, layer: &Layer) -> Result<BlobResponse> {
+    let ep = format!("{}/v2/{}/blobs/{}", self.base_url, name, &layer.digest);
     let url = reqwest::Url::parse(&ep)?;
+
+    println!("get_blob_response_from_layer: {}", ep);
 
     let resp = self.build_reqwest(Method::GET, url.clone()).send().await?;
 
@@ -48,7 +59,7 @@ impl Client {
         } else {
           trace!("Receiving a blob");
         }
-        Ok(BlobResponse::new(resp, ContentDigest::try_new(digest)?))
+        Ok(BlobResponse::new(resp, ContentDigest::try_new(&layer.digest)?, layer.media_type.clone()))
       }
       Err(_) if status.is_client_error() => Err(ApiErrors::from(resp).await),
       Err(_) if status.is_server_error() => Err(Error::Server { status }),
@@ -64,6 +75,13 @@ impl Client {
     self.get_blob_response(name, digest).await?.bytes().await
   }
 
+  /// Retrieve blob from `Layer` struct
+  pub async fn get_blob_from_layer(&self, name: &str, layer: &Layer) -> Result<(Vec<u8>, String)> {
+    let blob_response = self.get_blob_response_from_layer(name, layer).await?;
+    let media_type = blob_response.media_type.clone();
+    Ok((blob_response.bytes().await?, media_type))
+  }
+
   /// Retrieve blob stream.
   pub async fn get_blob_stream(&self, name: &str, digest: &str) -> Result<impl Stream<Item = Result<Vec<u8>>>> {
     Ok(self.get_blob_response(name, digest).await?.stream())
@@ -74,11 +92,12 @@ impl Client {
 pub struct BlobResponse {
   resp: reqwest::Response,
   digest: ContentDigest,
+  media_type: String,
 }
 
 impl BlobResponse {
-  fn new(resp: reqwest::Response, digest: ContentDigest) -> Self {
-    Self { resp, digest }
+  fn new(resp: reqwest::Response, digest: ContentDigest, media_type: String) -> Self {
+    Self { resp, digest, media_type }
   }
 
   /// Get size of the blob.
@@ -96,6 +115,11 @@ impl BlobResponse {
     digest.verify()?;
 
     Ok(blob)
+  }
+
+  /// Get MIME content-type of blob
+  pub fn content_type(&self) -> &str {
+    &self.media_type
   }
 
   /// Get bytes stream of the blob.

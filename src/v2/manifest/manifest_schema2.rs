@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::errors::Result;
 pub use crate::v2::ApiErrors;
+use crate::v2::manifest::Layer;
 
 /// Manifest version 2 schema 2.
 ///
@@ -129,8 +130,23 @@ impl ManifestSchema2 {
   /// List digests of all layers referenced by this manifest.
   ///
   /// The returned layers list is ordered starting with the base image first.
-  pub fn get_layers(&self) -> Vec<String> {
+  pub fn get_layer_digests(&self) -> Vec<String> {
     self.manifest_spec.layers.iter().map(|l| l.digest.clone()).collect()
+  }
+
+  /// List of all layers referenced by this manifest.
+  ///
+  /// The returned layers list is ordered starting with the base image first.
+  pub fn get_layers(&self) -> Vec<Layer> {
+    self.manifest_spec.layers
+        .iter()
+        .map(|l| {
+          Layer {
+            media_type: l.media_type.clone(),
+            digest: l.digest.clone(),
+          }
+        })
+        .collect()
   }
 
   /// Get the architecture from the config
@@ -165,5 +181,17 @@ impl ManifestList {
   /// Get the digest for all the manifest images in the ManifestList
   pub fn get_digests(&self) -> Vec<String> {
     self.manifests.iter().map(|mo| mo.digest()).collect()
+  }
+
+  /// Get `Layer` structs all the manifest images in the ManifestList
+  pub fn get_layers(&self) -> Vec<Layer> {
+    self.manifests
+        .iter()
+        .map(|mo| {
+          Layer {
+            media_type: mo.media_type.clone(),
+            digest: mo.digest.clone(),
+          }
+        }).collect()
   }
 }

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use crate::v2::manifest::Layer;
 
 /// Manifest version 2 schema 1, signed.
 ///
@@ -44,8 +45,23 @@ impl ManifestSchema1Signed {
   /// List digests of all layers referenced by this manifest.
   ///
   /// The returned layers list is ordered starting with the base image first.
-  pub fn get_layers(&self) -> Vec<String> {
+  pub fn get_layers_digests(&self) -> Vec<String> {
     self.fs_layers.iter().rev().map(|l| l.blob_sum.clone()).collect()
+  }
+
+  /// List of all layers referenced by this manifest.
+  ///
+  /// The returned layers list is ordered starting with the base image first.
+  pub fn get_layers(&self) -> Vec<Layer> {
+    self.fs_layers
+        .iter()
+        .map(|l| {
+          Layer {
+            media_type: "application/vnd.docker.image.rootfs.diff.tar.gzip".to_string(),
+            digest: l.blob_sum.clone(),
+          }
+        })
+        .collect()
   }
 
   /// Get a collection of all image labels stored in the history array of this manifest.

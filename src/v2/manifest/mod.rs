@@ -249,6 +249,12 @@ fn build_accept_headers(accepted_types: &[(MediaTypes, Option<f64>)]) -> header:
   )])
 }
 
+#[derive(Debug)]
+pub struct Layer {
+  pub media_type: String,
+  pub digest: String,
+}
+
 /// Umbrella type for common actions on the different manifest schema types
 #[derive(Debug)]
 pub enum Manifest {
@@ -287,6 +293,44 @@ impl Manifest {
   /// The returned layers list for non ManifestList images is ordered starting with the base image first.
   pub fn layers_digests(&self, architecture: Option<&str>) -> Result<Vec<String>> {
     match (self, self.architectures(), architecture) {
+      (Manifest::S1Signed(m), _, None) => Ok(m.get_layers_digests()),
+      (Manifest::S2(m), _, None) => Ok(m.get_layer_digests()),
+      (Manifest::S1Signed(m), Ok(ref self_architectures), Some(ref a)) => {
+        let self_a = self_architectures.first().ok_or(ManifestError::NoArchitecture)?;
+        if self_a != a {
+          return Err(ManifestError::ArchitectureMismatch.into());
+        }
+        Ok(m.get_layers_digests())
+      }
+      (Manifest::S2(m), Ok(ref self_architectures), Some(ref a)) => {
+        let self_a = self_architectures.first().ok_or(ManifestError::NoArchitecture)?;
+        if self_a != a {
+          return Err(ManifestError::ArchitectureMismatch.into());
+        }
+        Ok(m.get_layer_digests())
+      }
+      (Manifest::ML(m), _, _) => Ok(m.get_digests()),
+      _ => Err(ManifestError::LayerDigestsUnsupported(format!("{self:?}")).into()),
+    }
+  }
+
+  /// List of all layers referenced by this manifest, if available.
+  /// For ManifestList, returns the digests of all the manifest list images.
+  ///
+  /// As manifest list images only contain digests of the
+  /// images contained in the manifest, the `layers_digests`
+  /// function returns the digests of all the images
+  /// contained in the ManifestList instead of individual
+  /// layers of the manifests.
+  /// The layers of a specific image from manifest list can
+  /// be obtained using the `Layer` struct of the image from the
+  /// manifest list and getting its manifest and manifestref
+  /// (get_manifest_and_ref()) and using this manifest of
+  /// the individual image to get the layers.
+  ///
+  /// The returned layers list for non ManifestList images is ordered starting with the base image first.
+  pub fn layers(&self, architecture: Option<&str>) -> Result<Vec<Layer>> {
+    match (self, self.architectures(), architecture) {
       (Manifest::S1Signed(m), _, None) => Ok(m.get_layers()),
       (Manifest::S2(m), _, None) => Ok(m.get_layers()),
       (Manifest::S1Signed(m), Ok(ref self_architectures), Some(ref a)) => {
@@ -303,7 +347,7 @@ impl Manifest {
         }
         Ok(m.get_layers())
       }
-      (Manifest::ML(m), _, _) => Ok(m.get_digests()),
+      (Manifest::ML(m), _, _) => Ok(m.get_layers()),
       _ => Err(ManifestError::LayerDigestsUnsupported(format!("{self:?}")).into()),
     }
   }
