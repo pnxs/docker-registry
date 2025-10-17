@@ -3,10 +3,10 @@
 // Docker image format is specified at
 // https://github.com/moby/moby/blob/v17.05.0-ce/image/spec/v1.md
 
-use std::io::{ErrorKind, Read};
-use std::{fs, io, path};
-use std::path::Path;
 use libflate::gzip;
+use std::io::Read;
+use std::path::Path;
+use std::{fs, io, path};
 use tar::EntryType;
 
 #[derive(Debug)]
@@ -28,7 +28,7 @@ pub enum RenderError {
 /// Layers must be provided as gzip-compressed tar archives, with lower layers
 /// coming first. Target directory must be an existing absolute path.
 pub fn unpack(layers: &[Vec<u8>], target_dir: &Path) -> Result<(), RenderError> {
-  filter_unpack(layers, target_dir, |_| { true })
+  filter_unpack(layers, target_dir, |_| true)
 }
 
 /// Unpack an ordered list of layers-blobs to a target directory.
@@ -36,17 +36,20 @@ pub fn unpack(layers: &[Vec<u8>], target_dir: &Path) -> Result<(), RenderError> 
 /// Layers must be provided as gzip- or zstd-compressed tar archives, with lower layers
 /// coming first. Target directory must be an existing absolute path.
 pub fn unpack_layers(layers: &[LayerBlob], target_dir: &Path) -> Result<(), RenderError> {
-  filter_unpack_layers(layers, target_dir,|_| { true } )
+  filter_unpack_layers(layers, target_dir, |_| true)
 }
 
 pub fn filter_unpack<P>(layers: &[Vec<u8>], target_dir: &Path, predicate: P) -> Result<(), RenderError>
 where
-    P: Fn(&Path) -> bool,
+  P: Fn(&Path) -> bool,
 {
   let layers = layers
-      .into_iter()
-      .map(|b| LayerBlob { bytes: b.clone(), media_type: None })
-      .collect::<Vec<_>>();
+    .iter()
+    .map(|b| LayerBlob {
+      bytes: b.clone(),
+      media_type: None,
+    })
+    .collect::<Vec<_>>();
 
   filter_unpack_layers(layers.as_slice(), target_dir, predicate)
 }
@@ -67,11 +70,11 @@ where
 }
 
 fn _unpack_archive<'a, P>(dst: &Path, archive: &mut tar::Archive<Box<dyn Read + 'a>>, predicate: P) -> io::Result<()>
-where P: Fn(&Path) -> bool
+where
+  P: Fn(&Path) -> bool,
 {
   if dst.symlink_metadata().is_err() {
-    fs::create_dir_all(&dst)
-        .map_err(|e| io::Error::new( ErrorKind::Other, format!("failed to create `{}`. {}", dst.display(), e)))?
+    fs::create_dir_all(dst).map_err(|e| io::Error::other(format!("failed to create `{}`. {}", dst.display(), e)))?
   };
 
   // Canonicalizing the dst directory will prepend the path with '\\?\'
@@ -86,7 +89,7 @@ where P: Fn(&Path) -> bool
   // extraction.
   let mut directories = Vec::new();
   for entry in archive.entries()? {
-    let mut file = entry.map_err(|e| io::Error::new(ErrorKind::Other, format!("failed to iterate over archive. {}", e)))?;
+    let mut file = entry.map_err(|e| io::Error::other(format!("failed to iterate over archive. {e}")))?;
     if file.header().entry_type() == EntryType::Directory {
       directories.push(file);
     } else {
@@ -109,11 +112,9 @@ where P: Fn(&Path) -> bool
           // Remove whiteout place-holder
           let abs_wh_path = dst.join(&rel_parent).join(fname);
           remove_whiteout(abs_wh_path)?;
-        } else {
-          if predicate(&path) {
-            //println!("unpack {}", file.path()?.display());
-            file.unpack_in(dst)?;
-          }
+        } else if predicate(&path) {
+          //println!("unpack {}", file.path()?.display());
+          file.unpack_in(dst)?;
         }
       }
     }
@@ -135,7 +136,8 @@ where P: Fn(&Path) -> bool
 }
 
 fn _unpack_layer<'a, P>(layer: &'a LayerBlob, target_dir: &Path, predicate: &P) -> Result<(), RenderError>
-where P: Fn(&Path) -> bool
+where
+  P: Fn(&Path) -> bool,
 {
   if !target_dir.is_absolute() || !target_dir.exists() || !target_dir.is_dir() {
     return Err(RenderError::WrongTargetPath(target_dir.to_path_buf()));
@@ -145,12 +147,8 @@ where P: Fn(&Path) -> bool
     let l = &layer.bytes;
 
     match layer.media_type {
-      Some(ref media_type) if media_type.ends_with("+zstd") => {
-        Box::new(zstd::Decoder::new(l.as_slice())?)
-      }
-      _ => {
-        Box::new(gzip::Decoder::new(l.as_slice())?)
-      }
+      Some(ref media_type) if media_type.ends_with("+zstd") => Box::new(zstd::Decoder::new(l.as_slice())?),
+      _ => Box::new(gzip::Decoder::new(l.as_slice())?),
     }
   };
 

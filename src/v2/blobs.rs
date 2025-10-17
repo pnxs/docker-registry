@@ -1,5 +1,6 @@
 use std::pin::Pin;
 
+use crate::v2::manifest::Layer;
 use bytes::Bytes;
 use futures::{
   stream::Stream,
@@ -13,7 +14,6 @@ use crate::{
   errors::{Error, Result},
   v2::*,
 };
-use crate::v2::manifest::Layer;
 
 impl Client {
   /// Check if a blob exists.
@@ -45,7 +45,7 @@ impl Client {
     let ep = format!("{}/v2/{}/blobs/{}", self.base_url, name, &layer.digest);
     let url = reqwest::Url::parse(&ep)?;
 
-    println!("get_blob_response_from_layer: {}", ep);
+    println!("get_blob_response_from_layer: {ep}");
 
     let resp = self.build_reqwest(Method::GET, url.clone()).send().await?;
 
@@ -59,7 +59,11 @@ impl Client {
         } else {
           trace!("Receiving a blob");
         }
-        Ok(BlobResponse::new(resp, ContentDigest::try_new(&layer.digest)?, layer.media_type.clone()))
+        Ok(BlobResponse::new(
+          resp,
+          ContentDigest::try_new(&layer.digest)?,
+          layer.media_type.clone(),
+        ))
       }
       Err(_) if status.is_client_error() => Err(ApiErrors::from(resp).await),
       Err(_) if status.is_server_error() => Err(Error::Server { status }),
@@ -97,7 +101,11 @@ pub struct BlobResponse {
 
 impl BlobResponse {
   fn new(resp: reqwest::Response, digest: ContentDigest, media_type: String) -> Self {
-    Self { resp, digest, media_type }
+    Self {
+      resp,
+      digest,
+      media_type,
+    }
   }
 
   /// Get size of the blob.

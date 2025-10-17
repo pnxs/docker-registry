@@ -138,15 +138,15 @@ impl ManifestSchema2 {
   ///
   /// The returned layers list is ordered starting with the base image first.
   pub fn get_layers(&self) -> Vec<Layer> {
-    self.manifest_spec.layers
-        .iter()
-        .map(|l| {
-          Layer {
-            media_type: l.media_type.clone(),
-            digest: l.digest.clone(),
-          }
-        })
-        .collect()
+    self
+      .manifest_spec
+      .layers
+      .iter()
+      .map(|l| Layer {
+        media_type: l.media_type.clone(),
+        digest: l.digest.clone(),
+      })
+      .collect()
   }
 
   /// Get the architecture from the config
@@ -185,13 +185,13 @@ impl ManifestList {
 
   /// Get `Layer` structs all the manifest images in the ManifestList
   pub fn get_layers(&self) -> Vec<Layer> {
-    self.manifests
-        .iter()
-        .map(|mo| {
-          Layer {
-            media_type: mo.media_type.clone(),
-            digest: mo.digest.clone(),
-          }
-        }).collect()
+    self
+      .manifests
+      .iter()
+      .map(|mo| Layer {
+        media_type: mo.media_type.clone(),
+        digest: mo.digest.clone(),
+      })
+      .collect()
   }
 }
