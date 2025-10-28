@@ -1,8 +1,7 @@
-use docker_registry::render;
-use docker_registry::render::LayerBlob;
-use docker_registry::v2::manifest::Manifest;
-use futures::future::try_join_all;
 use std::{boxed, env, error, fs, io, path::Path, result::Result};
+
+use docker_registry::{render, render::LayerBlob, v2::manifest::Manifest};
+use futures::future::try_join_all;
 use tracing::{error, info, warn};
 
 #[tokio::main]

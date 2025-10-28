@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
-use crate::v2::manifest::Layer;
 use serde::{Deserialize, Serialize};
+
+use crate::v2::manifest::Layer;
 
 /// Manifest version 2 schema 1, signed.
 ///

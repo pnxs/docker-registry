@@ -1,7 +1,6 @@
 use std::{boxed, env, error, fs, io, path::Path, result::Result};
 
-use docker_registry::render;
-use docker_registry::v2::manifest::Manifest;
+use docker_registry::{render, v2::manifest::Manifest};
 use futures::future::try_join_all;
 use tracing::{error, info, warn};
 

@@ -1,6 +1,5 @@
 use std::pin::Pin;
 
-use crate::v2::manifest::Layer;
 use bytes::Bytes;
 use futures::{
   stream::Stream,
@@ -12,7 +11,7 @@ use reqwest::{self, Method, StatusCode};
 
 use crate::{
   errors::{Error, Result},
-  v2::*,
+  v2::{manifest::Layer, *},
 };
 
 impl Client {

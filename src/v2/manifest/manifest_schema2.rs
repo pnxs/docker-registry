@@ -4,9 +4,8 @@ use log::trace;
 use reqwest::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::errors::Result;
 pub use crate::v2::ApiErrors;
-use crate::v2::manifest::Layer;
+use crate::{errors::Result, v2::manifest::Layer};
 
 /// Manifest version 2 schema 2.
 ///

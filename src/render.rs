@@ -2,11 +2,9 @@
 
 // Docker image format is specified at
 // https://github.com/moby/moby/blob/v17.05.0-ce/image/spec/v1.md
+use std::{fs, io, io::Read, path, path::Path};
 
 use libflate::gzip;
-use std::io::Read;
-use std::path::Path;
-use std::{fs, io, path};
 use tar::EntryType;
 
 #[derive(Debug)]
